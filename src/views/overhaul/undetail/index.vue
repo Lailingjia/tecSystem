@@ -49,7 +49,7 @@
 
       <el-tab-pane label="审批" name="check">
         <el-collapse v-model="activeNames">
-          <el-collapse-item name="1">
+          <!-- <el-collapse-item name="1">
             <template slot="title" class="flex">
               <div class="title"><b>发起部门负责人审核</b></div>
               <div class="bt" v-if="step===0 && checkRole(['process_plan_deptManager'])">
@@ -82,11 +82,11 @@
                 </p>
               </el-col>
             </el-row>
-          </el-collapse-item>
+          </el-collapse-item> -->
           <el-collapse-item name="2">
             <template slot="title" class="flex">
               <div class="title"><b>综合调度审核</b></div>
-              <div class="bt" v-if="step===1&& checkRole(['process_plan_dispatchingCenter'])">
+              <div class="bt" v-if="step===0&& checkRole(['process_plan_dispatchingCenter'])">
                 <el-button type="primary" icon="el-icon-check" size="mini" @click.stop="receiveApproval(1)">提交
                 </el-button>
                 <el-button type="danger" icon="el-icon-close" size="mini" @click.stop="receiveApproval(0)">驳回
@@ -104,7 +104,7 @@
                 <p class="text"><b>审核时间：{{processInfos[1].createTime?processInfos[1].createTime:"____年____月____日____时____分____"}}</b>
                 </p>
               </el-col>
-              <el-col :span="23" :push="1" v-if="step===1&& checkRole(['process_plan_dispatchingCenter'])">
+              <el-col :span="23" :push="1" v-if="step===0&& checkRole(['process_plan_dispatchingCenter'])">
                 <p class="text">
                   <b>许可时间：
                     <el-date-picker type="datetimerange" v-model="dateRange" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
@@ -113,7 +113,7 @@
                   </b>
                 </p>
               </el-col>
-              <el-col :span="4" :push="1" v-if="step!==1 || !checkRole(['process_plan_dispatchingCenter'])">
+              <el-col :span="4" :push="1" v-if="step!==0 || !checkRole(['process_plan_dispatchingCenter'])">
                 <p class="text">
                   <b>许可开始时间：
                     <!--<el-date-picker  v-if="step===1&& hasRole('process_plan_dispatchingCenter')" type="date" v-model="processInfos[1].permissionStart" format="yyyy-MM-dd"-->
@@ -123,7 +123,7 @@
                   </b>
                 </p>
               </el-col>
-              <el-col :span="4" :offset="11" v-if="step!==1 || !checkRole(['process_plan_dispatchingCenter'])">
+              <el-col :span="4" :offset="11" v-if="step!==0 || !checkRole(['process_plan_dispatchingCenter'])">
                 <p class="text">
                   <b>许可结束时间：
                     <!--<el-date-picker  v-if="step===1&& hasRole('process_plan_dispatchingCenter')" type="date" v-model="processInfos[1].permissionEnd" format="yyyy-MM-dd"-->
@@ -139,7 +139,7 @@
               <el-col :span="8">
                 <p class="text">
                   <b>备注：
-                    <el-input v-if="step===1&& checkRole(['process_plan_dispatchingCenter'])" type="text" v-model="processInfos[1].opinions"></el-input>
+                    <el-input v-if="step===0&& checkRole(['process_plan_dispatchingCenter'])" type="text" v-model="processInfos[1].opinions"></el-input>
                     <span v-else>{{processInfos[1].opinions}}</span>
                   </b>
                 </p>
@@ -451,13 +451,14 @@
       // 如果路由有变化，会再次执行该方法
       '$route': 'fetchData',
       step() {
+        // if (this.step === 0) {
+        //   if (checkRole(['process_plan_deptManager'])) {
+        //     this.processInfos[0].nickName = this.user.nickName;
+        //     this.processInfos[0].phoneNumber = this.user.phonenumber;
+        //   }
+        // }
+        console.log(this.step)
         if (this.step === 0) {
-          if (checkRole(['process_plan_deptManager'])) {
-            this.processInfos[0].nickName = this.user.nickName;
-            this.processInfos[0].phoneNumber = this.user.phonenumber;
-          }
-        }
-        if (this.step === 1) {
           if (checkRole(['process_plan_dispatchingCenter'])) {
             this.processInfos[1].nickName = this.user.nickName;
             this.processInfos[1].phoneNumber = this.user.phonenumber;
@@ -469,6 +470,7 @@
             this.processInfos[2].phoneNumber = this.user.phonenumber;
           }
         }
+        console.log(this.processInfos)
       }
     },
     methods: {
@@ -516,20 +518,21 @@
               this.feedbackComplete = feedbackComplete;
             }
             this.newStatus= feedbackComplete;//完结后是否全部完成禁用
-            var processInfos = response.rows[0].processInfos;
+           let info = response.rows[0];
+            var processInfos = info.processInfos;
             processInfos.map((item, i) => {
-              if (i > 0) {
-                this.processInfos[i - 1] = item;
+              if (i > 0&&item.currentProgress!=-1) {
+                this.processInfos[i] = item;
               }
               if (i === 2) {
                 this.processInfos[i - 1].permissionStart = response.rows[0].permissionStart;
                 this.processInfos[i - 1].permissionEnd = response.rows[0].permissionEnd;
               }
-              
+              if(item.status!=0){
               this.step = item.currentProgress;
+              }
             })
           }
-
         });
       },
       // 审核
@@ -541,12 +544,12 @@
           result: type,
           inside: this.inside,
         };
+        // if (this.step === 0) {
+        //   data.status = 1;
+        //   title = text[type] + "发起部门审核人审核";
+        //   data.reason = this.processInfos[0].opinions;
+        // }
         if (this.step === 0) {
-          data.status = 1;
-          title = text[type] + "发起部门审核人审核";
-          data.reason = this.processInfos[0].opinions;
-        }
-        if (this.step === 1) {
           data.status = 2;
           title = text[type] + "综合调度审核";
           data.reason = this.processInfos[1].opinions;

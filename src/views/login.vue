@@ -1,7 +1,7 @@
 <template>
   <div class="login">
-    
-    
+
+
     <!-- <el-image
       style="width: 100%;"
       :src="url"
@@ -9,7 +9,7 @@
 
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">欢迎登陆
-        
+
       </h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号" class="username">
@@ -55,10 +55,10 @@
         </el-button>
       </el-form-item>
     </el-form>
-   
+
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2018-2019 ruoyi.vip All Rights Reserved.</span>
+      <span>Copyright © 2020 All Rights Reserved.</span>
     </div>
   </div>
 </template>
@@ -170,7 +170,7 @@ export default {
   text-align: center;
   color: #ffffff;
   font-size: 30px;
-  width: 30%;
+  width: 5em;
   padding-bottom: 3%;
   border-bottom: 2px solid aqua;
 }
@@ -183,9 +183,9 @@ export default {
   border: 2px solid rgb(0, 174, 255);
   box-shadow:0px 0px 20px rgb(5, 158, 245);
   background: #003cff48;
-  
-  width: 500px;
-  height: 500px;
+
+  /*width: 23%;*/
+  /*height: 50%;*/
   padding: 25px 25px 5px 25px;
   .el-input {
     height: 10%;
@@ -205,13 +205,18 @@ export default {
   color: #bfbfbf;
 }
 .login-code {
+
   // width: 33%;
   height: 38px;
+
+  /*width: 33%;*/
+  /*height: 38px;*/
+
   float: right;
   img {
     cursor: pointer;
     vertical-align: middle;
-   
+
   }
 }
 .el-login-footer {
@@ -244,7 +249,7 @@ color: white;
 }
 // .login-form /deep/.el-input input:-webkit-autofill {
 //     transition: background-color 5000s ease-in-out 0s;
-    
+
 // }
 
 .el-button--primary {
@@ -253,6 +258,14 @@ color: white;
     border-radius: 50px;
     border: 3px solid #00ffea;
     font-size: 18px;
+}
+.image{
+  position: absolute;
+  left: 10%;
+}
+
+.el-form-item{
+  margin-bottom: 5%;
 }
 
 

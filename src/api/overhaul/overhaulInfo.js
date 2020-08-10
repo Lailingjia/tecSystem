@@ -69,7 +69,14 @@ export function receiveApproval(data) {
     data: data
   })
 }
-
+// 检修撤销
+export function revokeApproval(data) {
+  return request({
+    url: '/overhaul/overhaulInfo/revokeApproval',
+    method: 'post',
+    data: data
+  })
+}
 // 上传附件
 export function upload(data) {
   return request({

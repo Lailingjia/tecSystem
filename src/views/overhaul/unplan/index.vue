@@ -93,19 +93,25 @@
           <!--@click="handleUpdate(scope.row)"-->
           <!--v-hasPermi="['overhaul:overhaulInfo:edit']"-->
           <!--&gt;修改</el-button>-->
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleApprove(scope.row)" v-hasPermi="['overhaul:overhaulInfo:operation']"
+          <el-button size="mini" type ="text" icon="el-icon-edit" @click="handleApprove(scope.row)"
+            v-hasPermi="['overhaul:overhaulInfo:operation']"
             v-hasRole="['process_plan_deptManager','process_plan_dispatchingCenter','process_plan_disCenterManager']"
             v-show="isShow(scope.row.status)">审批</el-button>
-          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRevoke(scope.row)" v-hasPermi="['overhaul:overhaulInfo:revoke']"
-            v-show="revokeIsShow(scope.row)">
-            撤销</el-button>
-          <!-- <el-button
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['overhaul:overhaulInfo:remove']"
-            >删除</el-button> -->
+            @click="handleRevoke(scope.row)"
+            v-hasPermi="['overhaul:overhaulInfo:revoke']"
+            v-show="revokeIsShow(scope.row)">
+            撤销</el-button>
+            <!--<el-button
+            <!--size="mini"-->
+            <!--type="text"-->
+            <!--icon="el-icon-delete"-->
+            <!--@click="handleDelete(scope.row)"-->
+            <!--v-hasPermi="['overhaul:overhaulInfo:remove']"-->
+            <!--&gt;删除</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -173,10 +179,10 @@
                 :style="{width: '100%'}"></el-input>
             </el-form-item>
             <el-form-item style="position: absolute;top: 0;right:10px;">
-              <!-- <el-upload ref="planAnnexAddr" :file-list="planAnnexAddrfileList" :action="planAnnexAddrAction" -->
-                <!-- :before-upload="planAnnexAddrBeforeUpload"> -->
-                <el-button size="small" type="warning" icon="el-icon-upload" @click="dialogVisible = true" >导入作业方案</el-button>
-              <!-- </el-upload> -->
+              <el-upload ref="planAnnexAddr" :file-list="planAnnexAddrfileList" :action="planAnnexAddrAction"
+                :before-upload="planAnnexAddrBeforeUpload">
+                <el-button size="small" type="warning" icon="el-icon-upload">导入作业方案</el-button>
+              </el-upload>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -193,22 +199,10 @@
           </el-col>
         </el-form>
       </el-row>
-      <div slot="footer" class="dialog-footer" v-loading="loading">
+      <div slot="footer" class="dialog-footer"   v-loading="loading">
         <el-button type="primary" @click="submitForm" style="width:150px">提 交</el-button>
         <el-button @click="cancel" style="width:150px">重 置</el-button>
       </div>
-    </el-dialog>
-
-    <el-dialog title="附件上传"  :auto-upload="false" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-      <el-upload class="upload-demo" :headers="myHeaders" :action="uploadUrl()" :on-preview="handlePreview" :before-remove="beforeRemove"
-        multiple :limit="1" :on-exceed="handleExceed" :file-list="fileList" :disabled="false">
-        <el-button size="small" type="warning" icon="el-icon-upload">选取文件</el-button>
-        <div slot="tip" class="el-upload__tip">文件大小不超过20M</div>
-      </el-upload>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-      </span>
     </el-dialog>
   </div>
 </template>
@@ -226,7 +220,7 @@
     updateOverhaulInfo,
     revokeApproval,
   } from "@/api/overhaul/overhaulInfo";
-import { getToken } from '@/utils/auth'
+
   export default {
     name: "OverhaulInfo",
     components: {
@@ -235,9 +229,7 @@ import { getToken } from '@/utils/auth'
     checked: false,
     data() {
       return {
-        myHeaders: {Authorization: 'Bearer '+getToken()},
-        dialogVisible: false,
-        inside: 0, //是否为本单位 0计划性检修   1外单位 非计划性检修
+        inside:1,//是否为本单位 0计划性检修   1外单位 非计划性检修
         activeName: 'basemessage',
         tableData: [{
           num: '1',
@@ -376,15 +368,8 @@ import { getToken } from '@/utils/auth'
       });
     },
     methods: {
-      handleClose(done) {
-        this.$confirm('已选择附件不会上传,确认关闭?')
-          .then(_ => {
-            done();
-          })
-          .catch(_ => {});
-      },
-      revokeIsShow(row) {
-        if (row.status == 0 && this.user.userId + '' == row.createUser) {
+      revokeIsShow(row){
+        if (row.status == 0&&this.user.userId+''==row.createUser) {
           return true;
         }
         return false;
@@ -530,12 +515,7 @@ import { getToken } from '@/utils/auth'
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          var data = {
-            id: ids,
-            status: -1,
-            result: 0,
-            inside: inside
-          };
+          var data = {id:ids,status:-1,result:0,inside:inside};
           console.log(data)
           return revokeApproval(data);
         }).then(() => {
@@ -560,7 +540,7 @@ import { getToken } from '@/utils/auth'
       /** 详情操作 */
       handleresource(row) {
         this.$router.push({
-          path: '/overhaul/detail',
+          path: '/overhaul/undetail',
           query: {
             id: row.id,
             inside: this.inside,
@@ -569,7 +549,7 @@ import { getToken } from '@/utils/auth'
       },
       handleApprove(row) {
         this.$router.push({
-          path: '/overhaul/detail',
+          path: '/overhaul/undetail',
           query: {
             id: row.id,
             active: 'check',
@@ -585,34 +565,7 @@ import { getToken } from '@/utils/auth'
       },
       planAnnexAddrBeforeUpload() {
 
-      },
-      handleRemove(file, fileList) {
-        debugger
-        console.log(file, fileList);
-      },
-      handlePreview(file) {
-        debugger
-        console.log(file);
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning(
-          `当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${
-                files.length + fileList.length
-              } 个文件`
-        );
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${file.name}？`);
-      },
-      handleRemove(file, fileList) {
-        console.log(file.name)
-        console.log(fileList)
-      },
-      uploadUrl() {
-        // return 'http://localhost:8081/common/upload';
-        return process.env.VUE_APP_BASE_API + '/overhaul/common/upload';
-      },
-
+      }
     }
   };
 </script>
